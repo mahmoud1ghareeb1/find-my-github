@@ -11,6 +11,7 @@ interface Video {
   url: string;
   thumbnail?: string;
   category?: string;
+  color?: string;
   created_at: string;
 }
 
@@ -96,46 +97,80 @@ const Index = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {videos.map((video) => (
-              <Card key={video.id} className="group hover:shadow-xl transition-all duration-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                <CardHeader className="p-0">
-                  <div className="relative overflow-hidden rounded-t-lg">
-                    <img
-                      src={video.thumbnail || '/placeholder.svg'}
-                      alt={video.title}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                      <Play className="h-12 w-12 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {videos.map((video) => {
+              // Helper function to get color gradient based on video color
+              const getColorGradient = (color: string) => {
+                switch (color?.toLowerCase()) {
+                  case 'blue':
+                  case 'أزرق':
+                    return 'from-blue-600/80 to-blue-800/80';
+                  case 'green':
+                  case 'أخضر':
+                    return 'from-green-600/80 to-green-800/80';
+                  case 'purple':
+                  case 'بنفسجي':
+                    return 'from-purple-600/80 to-purple-800/80';
+                  case 'red':
+                  case 'أحمر':
+                    return 'from-red-600/80 to-red-800/80';
+                  case 'orange':
+                  case 'برتقالي':
+                    return 'from-orange-600/80 to-orange-800/80';
+                  case 'teal':
+                  case 'أخضر مزرق':
+                    return 'from-teal-600/80 to-teal-800/80';
+                  default:
+                    return 'from-gray-800/80 to-gray-900/80';
+                }
+              };
+
+              return (
+                <div
+                  key={video.id}
+                  className="group relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer h-64"
+                  style={{
+                    backgroundImage: `url(${video.thumbnail || '/placeholder.svg'})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                  onClick={() => handleWatchVideo(video.url)}
+                >
+                  {/* Overlay with gradient */}
+                  <div className={`absolute inset-0 bg-gradient-to-t ${getColorGradient(video.color || '')} flex flex-col justify-between p-4`}>
+                    {/* Category badge */}
+                    {video.category && (
+                      <div className="self-start">
+                        <span className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                          {video.category}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Title and watch button */}
+                    <div className="flex flex-col gap-3">
+                      <h3 className="text-white font-bold text-lg leading-tight">
+                        {video.title}
+                      </h3>
+                      
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleWatchVideo(video.url);
+                        }}
+                        className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 hover:border-white/50 transition-all duration-300"
+                        size="sm"
+                      >
+                        <Play className="h-4 w-4 mr-2" />
+                        مشاهدة
+                      </Button>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-                    {video.title}
-                  </CardTitle>
-                  {video.category && (
-                    <div className="mb-3">
-                      <span className="inline-block bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs px-2 py-1 rounded-full">
-                        {video.category}
-                      </span>
-                    </div>
-                  )}
-                  <Button
-                    onClick={() => handleWatchVideo(video.url)}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white"
-                    size="sm"
-                  >
-                    <ExternalLink className="h-4 w-4 mr-2" />
-                    مشاهدة الفيديو
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+
+                  {/* Hover effect */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -150,12 +185,13 @@ const Index = () => {
             <li>اختر جدول "videos"</li>
             <li>اضغط على "Insert" → "Insert row"</li>
             <li>املأ البيانات المطلوبة:</li>
-            <ul className="list-disc list-inside ml-6 mt-1 space-y-1">
-              <li><strong>title:</strong> عنوان الفيديو</li>
-              <li><strong>url:</strong> رابط الفيديو (YouTube, Vimeo, إلخ)</li>
-              <li><strong>thumbnail:</strong> رابط صورة الفيديو (اختياري)</li>
-              <li><strong>category:</strong> تصنيف الفيديو (اختياري)</li>
-            </ul>
+             <ul className="list-disc list-inside ml-6 mt-1 space-y-1">
+               <li><strong>title:</strong> عنوان الفيديو</li>
+               <li><strong>url:</strong> رابط الفيديو (YouTube, Vimeo, إلخ)</li>
+               <li><strong>thumbnail:</strong> رابط صورة الفيديو (اختياري)</li>
+               <li><strong>category:</strong> تصنيف الفيديو (اختياري)</li>
+               <li><strong>color:</strong> لون التدرج (blue, green, purple, red, orange, teal - اختياري)</li>
+             </ul>
             <li>اضغط "Save" وسيظهر الفيديو الجديد تلقائياً</li>
           </ol>
         </div>
