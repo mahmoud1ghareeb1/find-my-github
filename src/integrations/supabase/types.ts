@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      speakers: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       video_links: {
         Row: {
           created_at: string
@@ -47,6 +74,7 @@ export type Database = {
           color: string | null
           created_at: string
           id: number
+          speaker_id: string | null
           thumbnail: string | null
           title: string
           url: string
@@ -56,6 +84,7 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: number
+          speaker_id?: string | null
           thumbnail?: string | null
           title: string
           url: string
@@ -65,11 +94,20 @@ export type Database = {
           color?: string | null
           created_at?: string
           id?: number
+          speaker_id?: string | null
           thumbnail?: string | null
           title?: string
           url?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "videos_speaker_id_fkey"
+            columns: ["speaker_id"]
+            isOneToOne: false
+            referencedRelation: "speakers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
